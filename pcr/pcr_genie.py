@@ -5,6 +5,8 @@ All rights reserved.
 
 @author: neilswainston
 '''
+# pylint: disable=invalid-name
+# pylint: disable=too-many-arguments
 import os
 import shutil
 import sys
@@ -15,13 +17,13 @@ from synbiochem.utils import ice_utils, seq_utils
 import pandas as pd
 
 
-def get_ice_files(url, username, password, ice_ids_filename,
-                  for_primer, rev_primer, dir_name):
+def get_ice_files(url, username, password,
+                  ice_ids_filename,
+                  for_primer, rev_primer,
+                  dir_name):
     '''Get ICE sequences.'''
     ice_client = ice_utils.ICEClient(url, username, password)
-
-    with open(ice_ids_filename, 'rU') as ice_ids_file:
-        ice_ids = [line.strip() for line in ice_ids_file]
+    ice_ids = _get_ice_ids(ice_ids_filename)
 
     seqs_offsets = [pcr(ice_client.get_ice_entry(ice_id).get_seq(),
                         for_primer, rev_primer)
@@ -29,10 +31,7 @@ def get_ice_files(url, username, password, ice_ids_filename,
 
     seqs, _ = zip(*seqs_offsets)
 
-    if os.path.exists(dir_name):
-        shutil.rmtree(dir_name)
-
-    os.makedirs(dir_name)
+    _mkdirs(dir_name)
 
     for ice_id, seq in zip(ice_ids, seqs):
         seq_utils.write_fasta({ice_id: seq}, os.path.join(dir_name,
@@ -62,6 +61,20 @@ def pcr(seq, forward_primer, reverse_primer):
         seq = seq[:rev_primer_pos + len(reverse_primer)]
 
     return seq, for_primer_pos
+
+
+def _get_ice_ids(ice_ids_filename):
+    '''Get ICE ids.'''
+    with open(ice_ids_filename, 'rU') as ice_ids_file:
+        return [line.strip() for line in ice_ids_file]
+
+
+def _mkdirs(dir_name):
+    '''Make directories.'''
+    if os.path.exists(dir_name):
+        shutil.rmtree(dir_name)
+
+    os.makedirs(dir_name)
 
 
 def main(args):
