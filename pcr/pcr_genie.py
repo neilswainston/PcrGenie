@@ -7,14 +7,15 @@ All rights reserved.
 '''
 # pylint: disable=invalid-name
 # pylint: disable=too-many-arguments
+# pylint: disable=wrong-import-order
 import os
 import shutil
 import sys
 
 from Bio import Seq
-from synbiochem.utils import ice_utils, seq_utils
 
 import pandas as pd
+from synbiochem.utils import ice_utils, seq_utils
 
 
 def get_ice_files(url, username, password,
